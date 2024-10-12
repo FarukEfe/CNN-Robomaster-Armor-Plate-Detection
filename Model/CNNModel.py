@@ -1,6 +1,9 @@
 from imports import *
+import ModelData
 
 class CNNModel:
+
+    model_data: ModelData = ModelData()
 
     def __init__(self) -> None:
         # Set logger for debug
@@ -12,4 +15,5 @@ class CNNModel:
         np.random.seed(12345)
         tf.random.set_seed(12345)
         os.environ["PYTHONHASHSEED"] = str(SEED)
+        # Get full image dataset
         

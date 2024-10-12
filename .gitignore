@@ -1,4 +1,5 @@
 # Ignore virtual environment
 .env/
+train/
 # Do NOT ignore README.md
 !README.md
