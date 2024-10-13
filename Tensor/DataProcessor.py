@@ -1,4 +1,4 @@
-from imports import *
+from Tensor.tensor_imports import *
 
 # Convert image into float matrix
 def convert_to_float(image, label):

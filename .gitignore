@@ -1,7 +1,13 @@
 # Ignore virtual environment
 .env/
+# Ignore data folder
 data/
+# Ignore caches
 __pycache__/
 Model/__pycache__/
+# Ignore yolo addresses
+runs/
+yolov8s.pt
+dataset_yaml.yaml
 # Do NOT ignore README.md
 !README.md

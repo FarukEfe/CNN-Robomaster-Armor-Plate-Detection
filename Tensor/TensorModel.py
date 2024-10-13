@@ -1,9 +1,9 @@
-from imports import *
-import ModelData
+from Tensor.tensor_imports import *
+import Tensor.DataProcessor as DataProcessor
 
-class CNNModel:
+class TensorModel:
 
-    model_data: ModelData = ModelData()
+    model_data: DataProcessor = DataProcessor()
 
     def __init__(self) -> None:
         # Set logger for debug

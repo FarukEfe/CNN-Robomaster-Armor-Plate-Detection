@@ -40,6 +40,4 @@ def order_dataset(val_split: float = 0.2, test_split: float = 0.1):
                 shutil.move(f"./data/train/{img_name}", move_to + "neg/")
             # Delete text file
             os.remove(loc_txt_dir)
-
-order_dataset()
     
