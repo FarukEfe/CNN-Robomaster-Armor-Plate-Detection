@@ -35,12 +35,13 @@ class ModelData:
         if augment:
             # Make a sequential model to augment data
             augmentations = Sequential([
-                RandomBrightness(0.5),
-                RandomFlip("Horizontal")
+                RandomBrightness(factor=0.5),
+                RandomFlip(mode="horizontal")
             ])
-
-            res = self.train.map(augmentations).cache()
-            res = self.train.concatenate(augmentations(res))
+            
+            apply = lambda x, y: (augmentations(x, training=True), y)
+            res = self.train.map(apply).cache()
+            res = self.train.concatenate(res)
             return res
 
         return self.train
