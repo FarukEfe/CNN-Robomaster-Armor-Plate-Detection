@@ -2,6 +2,8 @@ import os
 import shutil
 
 def order_train():
+    if (os.path.exists("./train/pos")):
+        return
     # Create new folders labelled Pos and Neg
     os.mkdir("./train/pos")
     os.mkdir("./train/neg")
@@ -22,3 +24,4 @@ def order_train():
                 shutil.move(f"./train/{img_name}","./train/neg/")
             # Delete text file
             os.remove(loc_txt_dir)
+    
