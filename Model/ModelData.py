@@ -31,7 +31,19 @@ class ModelData:
         self.train, self.cv, self.test = train, cv, test
     
     # MARK: Getters
-    def get_train(self) -> tf.data.Dataset: return self.train
+    def get_train(self, augment=False) -> tf.data.Dataset: 
+        if augment:
+            # Make a sequential model to augment data
+            augmentations = Sequential([
+                RandomBrightness(0.5),
+                RandomFlip("Horizontal")
+            ])
+
+            res = self.train.map(augmentations).cache()
+            res = self.train.concatenate(augmentations(self.train))
+            return res
+
+        return self.train
 
     def get_cv(self) -> tf.data.Dataset: return self.cv
     

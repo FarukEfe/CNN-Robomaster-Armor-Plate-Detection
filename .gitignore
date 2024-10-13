@@ -1,5 +1,7 @@
 # Ignore virtual environment
 .env/
 train/
+_pycache_/
+Model/_pycache_/
 # Do NOT ignore README.md
 !README.md
