@@ -7,7 +7,11 @@ def convert_to_float(image, label):
 
 class ModelData:
 
+    # MARK: Initializer
+
     def __init__(self):
+
+        self.train, self.cv, self.test = None, None, None
 
         dataset = image_dataset_from_directory(
             './train',
@@ -18,12 +22,18 @@ class ModelData:
             batch_size=32, # Training batch for images (should match the batch_size in model.fit)
             shuffle=True # Shuffle data
         )
-        # print(len(dataset)) # Debug
 
-        # Last two batches are used for cross-validation and test
-        train_, cv_, test_ = dataset.take(len(dataset) - 2), dataset.skip(len(dataset) - 2).take(1), dataset.skip(len(dataset) - 1).take(1)
         # Turn images into float matrices
         AUTOTUNE = tf.data.experimental.AUTOTUNE
-        train = (train_.map(convert_to_float).cache().prefetch(AUTOTUNE))
-        cv = (cv_.map(convert_to_float).cache().prefetch(AUTOTUNE))
-        test = (test_.map(convert_to_float).cache().prefetch(AUTOTUNE))
+        dataset = (dataset.map(convert_to_float).cache().prefetch(AUTOTUNE))
+        # Last two batches are used for cross-validation and test
+        train, cv, test = dataset.take(len(dataset) - 2), dataset.skip(len(dataset) - 2).take(1), dataset.skip(len(dataset) - 1).take(1)
+        self.train, self.cv, self.test = train, cv, test
+    
+    # MARK: Getters
+    def get_train(self) -> tf.data.Dataset: return self.train
+
+    def get_cv(self) -> tf.data.Dataset: return self.cv
+    
+    def get_test(self) -> tf.data.Dataset: return self.test
+        
