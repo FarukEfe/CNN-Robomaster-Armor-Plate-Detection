@@ -40,7 +40,7 @@ class ModelData:
             ])
 
             res = self.train.map(augmentations).cache()
-            res = self.train.concatenate(augmentations(self.train))
+            res = self.train.concatenate(augmentations(res))
             return res
 
         return self.train
