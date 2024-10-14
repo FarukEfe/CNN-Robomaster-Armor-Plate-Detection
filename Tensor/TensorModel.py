@@ -1,6 +1,23 @@
 from tensor_imports import *
 from DataProcessor import DataProcessor
 
+'''
+Training parameters:
+ 1. Learning Rate (Handled by Adam optimizer)
+ 2. Batch Size (Generally 32 is fine, but give this a try)
+ 3. Number of epochs (First catch a glimpse at the performance using low epochs, then for the final train, do more epochs to ensure the model's training)
+ 4. Optimizer (try some other than adam, such as SGD or RMSprop)
+
+Of a Convolutional Neural Network, hyper-parameter optimization is important. Here's a list of hyper-parameters you need to optimize:
+ 1. Number of filters
+ 2. Strides
+ 3. Padding
+ 4. Dropout layers (dropout rate)
+ 5. Weight initialization methods (Xavier, He initialization)
+ 6. Regularization (L1, L2) (usually L2 is more effective)
+ 7. Kernels (maybe use custom kernel this time?) 
+'''
+
 class TensorModel:
 
     def __init__(self) -> None:
@@ -31,15 +48,15 @@ class TensorModel:
         m.add(Dense(units=128,activation='relu'))
         m.add(Dense(units=64,activation='relu'))
         m.add(Dense(units=16,activation='relu'))
-        m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(0.005)))
+        m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(0.05)))
         self.model = m
     
-    def train_model(self):
+    def train_model(self,augment: bool = False):
         if self.model == None:
             return
         
         self.model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-        history = self.model.fit(self.model_data.get_train(),validation_data=self.model_data.get_cv(),batch_size=self.model_data.batch_size,epochs=50,verbose=1)
+        history = self.model.fit(self.model_data.get_train(augment=augment),validation_data=self.model_data.get_cv(),batch_size=self.model_data.batch_size,epochs=50,verbose=1)
         print(type(history))
         return history
 
@@ -50,8 +67,19 @@ class TensorModel:
         results = self.model.evaluate(self.model_data.get_test(),verbose=1)
         return results
 
+    def save_model(self):
+        self.model.save("neural_net.keras")
+    
+    def load_model(self):
+        self.model = load_model("neural_net.keras")
 
+'''
 model = TensorModel()
 model.build_model()
-model.train_model() 
+model.train_model( augment = False ) 
 model.test_model()     
+model.save_model()
+'''
+tm = TensorModel()
+tm.load_model()
+tm.test_model()
