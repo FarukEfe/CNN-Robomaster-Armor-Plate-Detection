@@ -1,5 +1,7 @@
 from tensor_imports import *
 
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+
 # Convert image into float matrix
 def convert_to_float(image, label):
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
@@ -26,7 +28,6 @@ class DataProcessor:
         )
 
         # Turn images into float matrices
-        AUTOTUNE = tf.data.experimental.AUTOTUNE
         dataset = (dataset.map(convert_to_float).cache().prefetch(AUTOTUNE))
         # Last two batches are used for cross-validation and test
         train, cv, test = dataset.take(len(dataset) - 2), dataset.skip(len(dataset) - 2).take(1), dataset.skip(len(dataset) - 1).take(1)
@@ -47,11 +48,20 @@ class DataProcessor:
             ])
             
             apply = lambda x, y: (augmentations(x, training=True), y)
-            res = self.train.map(apply).cache()
+            res = (self.train.map(apply).cache().prefetch(AUTOTUNE))
             res = self.train.concatenate(res)
             return res
 
         return self.train
+
+    # CONSIDER REMOVING THIS IF YOU WON'T USE IT IN THE FUTURE
+    def train_features_labels(self) -> tuple[tf.data.Dataset,tf.data.Dataset]:
+        features = []
+        labels = []
+        for feature, label in self.train:
+            features.append(feature)
+            labels.append(label)
+        return features, labels
 
     def get_cv(self) -> tf.data.Dataset: return self.cv
     

@@ -5,7 +5,10 @@ data/
 # Ignore caches
 __pycache__/
 Model/__pycache__/
-# Ignore yolo addresses
+# Ignore Tensor saves
+neural_net.keras
+tensor_runs/
+# Ignore yolo saves
 runs/
 yolov8s.pt
 dataset_yaml.yaml

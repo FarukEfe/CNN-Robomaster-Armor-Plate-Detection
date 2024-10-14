@@ -8,17 +8,42 @@ Training parameters:
  3. Number of epochs (First catch a glimpse at the performance using low epochs, then for the final train, do more epochs to ensure the model's training)
  4. Optimizer (try some other than adam, such as SGD or RMSprop)
 
-Of a Convolutional Neural Network, hyper-parameter optimization is important. Here's a list of hyper-parameters you need to optimize:
+Inference hyper-parameteres to optimize:
+ 1. Layers
+ 2. Units
+ 3. Activation
+ 4. Regularizer
+
+Convolutional hyper-parameters to optimize:
  1. Number of filters
  2. Strides
  3. Padding
  4. Dropout layers (dropout rate)
  5. Weight initialization methods (Xavier, He initialization)
- 6. Regularization (L1, L2) (usually L2 is more effective)
  7. Kernels (maybe use custom kernel this time?) 
 '''
 
 class TensorModel:
+
+    # Dataset Accesss
+    dataset: DataProcessor = DataProcessor()
+
+    # Convolutional Block Hyper-Parameters
+    conv_hps = {
+
+    }
+    
+    # Inference Block Hyper-Parameters
+    hps = {
+        'activation': 'relu',
+        'layer_1': 128,
+        'layer_2': 128,
+        'layer_3': 64,
+        'layer_4': 16,
+        'l2': 0.05
+    }
+
+    # MARK: Initializer
 
     def __init__(self) -> None:
         # Set logger for debug
@@ -32,31 +57,32 @@ class TensorModel:
         os.environ["PYTHONHASHSEED"] = str(SEED)
         # Set initial model to None
         self.model = None
-        self.model_data: DataProcessor = DataProcessor()
+    
+    # MARK: Manual Model
     
     def build_model(self):
         m = Sequential()
         # Format Train Data
-        m.add(InputLayer(shape=[self.model_data.img_w,self.model_data.img_h,3]))
+        m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
         m.add(BatchNormalization())
         # Convolutional Block
         m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
         m.add(MaxPool2D()) # def. pool size is 2x2
         m.add(Flatten())
         # Inference Block
-        m.add(Dense(units=128,activation='relu'))
-        m.add(Dense(units=128,activation='relu'))
-        m.add(Dense(units=64,activation='relu'))
-        m.add(Dense(units=16,activation='relu'))
-        m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(0.05)))
+        m.add(Dense(units=self.hps['layer_1'],activation=self.hps['activation']))
+        m.add(Dense(units=self.hps['layer_2'],activation=self.hps['activation']))
+        m.add(Dense(units=self.hps['layer_3'],activation=self.hps['activation']))
+        m.add(Dense(units=self.hps['layer_4'],activation=self.hps['activation']))
+        m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(self.hps['l2'])))
         self.model = m
     
     def train_model(self,augment: bool = False):
-        if self.model == None:
+        if self.model == None or type(self.model) != Sequential:
             return
         
         self.model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-        history = self.model.fit(self.model_data.get_train(augment=augment),validation_data=self.model_data.get_cv(),batch_size=self.model_data.batch_size,epochs=50,verbose=1)
+        history = self.model.fit(self.dataset.get_train(augment=augment),validation_data=self.dataset.get_cv(),batch_size=self.dataset.batch_size,epochs=50,verbose=1)
         print(type(history))
         return history
 
@@ -64,8 +90,57 @@ class TensorModel:
         if self.model == None:
             return
         
-        results = self.model.evaluate(self.model_data.get_test(),verbose=1)
+        results = self.model.evaluate(self.dataset.get_test(),verbose=1)
         return results
+    
+    # MARK: Hyper Model
+
+    def __hyper_model(self,hp):
+        m = Sequential()
+        # Format Train Data
+        m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
+        m.add(BatchNormalization())
+        # Convolutional Block
+        m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
+        m.add(MaxPool2D()) # def. pool size is 2x2
+        m.add(Flatten())
+        # Inference Block
+        # Fine-tuning
+        hp_activation = hp.Choice('activation', values=['relu','tanh']) # Activation tuning
+        hp_units_1 = hp.Int('layer_1', min_value = 16, max_value = 256, step = 16) # Tuning for each layer units
+        hp_units_2 = hp.Int('layer_2', min_value = 16, max_value = 256, step = 16)
+        hp_units_3 = hp.Int('layer_3', min_value = 16, max_value = 128, step = 16)
+        hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 128, step = 16)
+        hp_reg_rate = hp.Choice('l2', values=[0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
+        m.add(Dense(units=hp_units_1,activation=hp_activation))
+        m.add(Dense(units=hp_units_2,activation=hp_activation))
+        m.add(Dense(units=hp_units_3,activation=hp_activation))
+        m.add(Dense(units=hp_units_4,activation=hp_activation))
+        m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(hp_reg_rate)))
+
+        m.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
+        return m
+
+    def tune_hyper(self):
+        tuner = kt.Hyperband(
+                            self.__hyper_model,
+                            objective=['val_accuracy'],
+                            max_epochs=15,
+                            factor=3,
+                            directory='./',
+                            project_name='tensor_runs'
+                        )
+        stop_early = EarlyStopping(monitor='val_loss', patience=3) # Observe improvement in val_loss and if it doesn't change for over 3 epochs, stop training
+        # Separate features and labels
+        train_X, train_y = self.dataset.train_features_labels()
+        # Normalize features and labels between 1 and 0
+        #train_X = train_X.astype('float32') / 255.0
+        #train_y = train_y.astype('float32') / 255.0
+        tuner.search(train_X, train_y, epochs=50, validation_split=0.2, callbacks=[stop_early])
+        best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+        self.hps = best_hps.values
+
+    # MARK: Save Model
 
     def save_model(self):
         self.model.save("neural_net.keras")
@@ -73,6 +148,7 @@ class TensorModel:
     def load_model(self):
         self.model = load_model("neural_net.keras")
 
+# Manual Model Testing
 '''
 model = TensorModel()
 model.build_model()
@@ -80,6 +156,22 @@ model.train_model( augment = False )
 model.test_model()     
 model.save_model()
 '''
+# Save and Load Testing
+'''
 tm = TensorModel()
 tm.load_model()
+tm.test_model()
+'''
+# Hyper-parameter Optimization Testing
+tm = TensorModel()
+# First model testing
+tm.build_model()
+tm.train_model()
+tm.test_model()
+# Hyper-parameter tuning
+_ = input()
+tm.tune_hyper()
+# Test out new hyperparameters
+tm.build_model()
+tm.train_model()
 tm.test_model()
