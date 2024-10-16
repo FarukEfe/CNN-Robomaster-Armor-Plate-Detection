@@ -30,7 +30,11 @@ class TensorModel:
 
     # Convolutional Block Hyper-Parameters
     conv_hps = {
-
+        'filters': 6,
+        'kernel': (3,3),
+        'dilation': (1,1),
+        'pool': (2,2),
+        'padding': 'valid'
     }
     
     # Inference Block Hyper-Parameters
@@ -40,8 +44,11 @@ class TensorModel:
         'layer_2': 128,
         'layer_3': 64,
         'layer_4': 16,
-        'l2': 0.05
+        'l2': 0.01
     }
+
+    # Where best models are saved
+    path = os.getcwd() + "/Tensor/best_models"
 
     # MARK: Initializer
 
@@ -65,9 +72,13 @@ class TensorModel:
         # Format Train Data
         m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
         m.add(BatchNormalization())
-        # Convolutional Block
-        m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
-        m.add(MaxPool2D()) # def. pool size is 2x2
+        # Convolutional Block One
+        m.add(Conv2D(filters=self.conv_hps['filters'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
+        # Convolutional Block Two
+        #m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
+        #m.add(MaxPool2D())
+        # Flatten Before Inference
         m.add(Flatten())
         # Inference Block
         m.add(Dense(units=self.hps['layer_1'],activation=self.hps['activation']))
@@ -77,12 +88,12 @@ class TensorModel:
         m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(self.hps['l2'])))
         self.model = m
     
-    def train_model(self,augment: bool = False):
+    def train_model(self,augment: bool = False, epochs: int = 50):
         if self.model == None or type(self.model) != Sequential:
             return
         
         self.model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-        history = self.model.fit(self.dataset.get_train(augment=augment),validation_data=self.dataset.get_cv(),batch_size=self.dataset.batch_size,epochs=50,verbose=1)
+        history = self.model.fit(self.dataset.get_train(augment=augment),validation_data=self.dataset.get_cv(),batch_size=self.dataset.batch_size,epochs=epochs,verbose=1)
         print(type(history))
         return history
 
@@ -100,9 +111,13 @@ class TensorModel:
         # Format Train Data
         m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
         m.add(BatchNormalization())
-        # Convolutional Block
-        m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
-        m.add(MaxPool2D()) # def. pool size is 2x2
+        # Convolutional Block One
+        m.add(Conv2D(filters=self.conv_hps['filters'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
+        # Convolutional Block Two
+        #m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
+        #m.add(MaxPool2D())
+        # Flatten Before Inference
         m.add(Flatten())
         # Inference Block
         # Fine-tuning
@@ -130,7 +145,7 @@ class TensorModel:
                             directory='./',
                             project_name='tensor_runs'
                         )
-        stop_early = EarlyStopping(monitor='val_loss', patience=3) # Observe improvement in val_loss and if it doesn't change for over 3 epochs, stop training
+        stop_early = EarlyStopping(monitor='val_loss', patience=6) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
         # Separate features and labels
         train_X, train_y = self.dataset.train_features_labels()
         # Normalize features and labels between 1 and 0
@@ -143,35 +158,31 @@ class TensorModel:
     # MARK: Save Model
 
     def save_model(self):
-        self.model.save("neural_net.keras")
+        n_files = len(os.listdir(self.path))
+        self.model.save(self.path + f"/neural_net_{n_files}.keras")
     
-    def load_model(self):
-        self.model = load_model("neural_net.keras")
+    def load_model(self, n: int):
+        n_files = len(os.listdir(self.path))
+        if (n < 0 or n >= n_files):
+            return
+        self.model = load_model(f"neural_net_{n}.keras")
 
-# Manual Model Testing
-'''
-model = TensorModel()
-model.build_model()
-model.train_model( augment = False ) 
-model.test_model()     
-model.save_model()
-'''
-# Save and Load Testing
-'''
-tm = TensorModel()
-tm.load_model()
-tm.test_model()
-'''
-# Hyper-parameter Optimization Testing
-tm = TensorModel()
-# First model testing
-tm.build_model()
-tm.train_model()
-tm.test_model()
-# Hyper-parameter tuning
-_ = input()
-tm.tune_hyper()
-# Test out new hyperparameters
-tm.build_model()
-tm.train_model()
-tm.test_model()
+
+if __name__ == "__main__":
+    # Hyper-parameter Optimization Testing
+    tm = TensorModel()
+    # First model testing
+    tm.build_model()
+    tm.train_model(epochs=50)
+    tm.test_model()
+    # Save model
+    tm.save_model()
+    '''
+    # Hyper-parameter tuning
+    _ = input()
+    tm.tune_hyper()
+    # Test out new hyperparameters
+    tm.build_model()
+    tm.train_model(epochs=100)
+    tm.test_model()
+    '''
