@@ -6,7 +6,7 @@ data/
 __pycache__/
 Model/__pycache__/
 # Ignore Tensor saves
-neural_net.keras
+Tensor/best_models/
 tensor_runs/
 # Ignore yolo saves
 runs/
