@@ -7,7 +7,7 @@ __pycache__/
 Model/__pycache__/
 # Ignore Tensor saves
 Tensor/best_models/
-tensor_runs/
+Tensor/tensor_runs/
 # Ignore yolo saves
 runs/
 yolov8s.pt

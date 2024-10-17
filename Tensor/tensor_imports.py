@@ -5,7 +5,7 @@ import random
 from keras.api.preprocessing import image_dataset_from_directory
 # Neural Network Training
 from keras.api.models import Sequential
-from keras.api.layers import Dense, Activation, InputLayer, Flatten, Conv2D, MaxPool2D, BatchNormalization
+from keras.api.layers import Dense, Activation, InputLayer, Flatten, Conv2D, MaxPool2D, BatchNormalization, Dropout
 from keras.api.optimizers import Adam
 from keras.api.losses import BinaryCrossentropy
 # Accuracy

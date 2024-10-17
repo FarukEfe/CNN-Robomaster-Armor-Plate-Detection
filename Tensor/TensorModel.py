@@ -30,7 +30,8 @@ class TensorModel:
 
     # Convolutional Block Hyper-Parameters
     conv_hps = {
-        'filters': 6,
+        'f1': 6,
+        'f2': 12,
         'kernel': (3,3),
         'dilation': (1,1),
         'pool': (2,2),
@@ -44,7 +45,9 @@ class TensorModel:
         'layer_2': 128,
         'layer_3': 64,
         'layer_4': 16,
-        'l2': 0.01
+        'l2': 0.01,
+        'dropout_1': 0.2,
+        'dropout_2': 0.2
     }
 
     # Where best models are saved
@@ -73,17 +76,19 @@ class TensorModel:
         m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
         m.add(BatchNormalization())
         # Convolutional Block One
-        m.add(Conv2D(filters=self.conv_hps['filters'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(Conv2D(filters=self.conv_hps['f1'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
         m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
         # Convolutional Block Two
-        #m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
-        #m.add(MaxPool2D())
+        m.add(Conv2D(filters=self.conv_hps['f2'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
         # Flatten Before Inference
         m.add(Flatten())
         # Inference Block
         m.add(Dense(units=self.hps['layer_1'],activation=self.hps['activation']))
+        m.add(Dropout(self.hps['dropout_1']))
         m.add(Dense(units=self.hps['layer_2'],activation=self.hps['activation']))
         m.add(Dense(units=self.hps['layer_3'],activation=self.hps['activation']))
+        m.add(Dropout(self.hps['dropout_2']))
         m.add(Dense(units=self.hps['layer_4'],activation=self.hps['activation']))
         m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(self.hps['l2'])))
         self.model = m
@@ -112,11 +117,11 @@ class TensorModel:
         m.add(InputLayer(shape=[self.dataset.img_w,self.dataset.img_h,3]))
         m.add(BatchNormalization())
         # Convolutional Block One
-        m.add(Conv2D(filters=self.conv_hps['filters'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(Conv2D(filters=self.conv_hps['f1'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
         m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
         # Convolutional Block Two
-        #m.add(Conv2D(filters=3,kernel_size=(3,3),dilation_rate=(1,1),padding='valid',activation='relu'))
-        #m.add(MaxPool2D())
+        m.add(Conv2D(filters=self.conv_hps['f2'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
+        m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
         # Flatten Before Inference
         m.add(Flatten())
         # Inference Block
@@ -126,10 +131,14 @@ class TensorModel:
         hp_units_2 = hp.Int('layer_2', min_value = 16, max_value = 256, step = 16)
         hp_units_3 = hp.Int('layer_3', min_value = 16, max_value = 128, step = 16)
         hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 128, step = 16)
-        hp_reg_rate = hp.Choice('l2', values=[0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
+        hp_reg_rate = hp.Choice('l2', values=[0.0,0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
+        hp_dropout_1 = hp.Choice('dropout_1', values=[i * 0.02 for i in range(0,26)]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
+        hp_dropout_2 = hp.Choice('dropout_2', values=[i * 0.02 for i in range(0,26)])
         m.add(Dense(units=hp_units_1,activation=hp_activation))
+        m.add(Dropout(hp_dropout_1))
         m.add(Dense(units=hp_units_2,activation=hp_activation))
         m.add(Dense(units=hp_units_3,activation=hp_activation))
+        m.add(Dropout(hp_dropout_2))
         m.add(Dense(units=hp_units_4,activation=hp_activation))
         m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(hp_reg_rate)))
 
@@ -137,13 +146,17 @@ class TensorModel:
         return m
 
     def tune_hyper(self):
+        # Delete previous runs since model changes
+        if (os.path.exists("./Tensor/tensor_runs")):
+            os.remove("./Tensor/tensor_runs")
+        # Create hp optimizer band
         tuner = kt.Hyperband(
                             self.__hyper_model,
                             objective=['val_accuracy'],
                             max_epochs=15,
                             factor=3,
                             directory='./',
-                            project_name='tensor_runs'
+                            project_name='./tensor_runs'
                         )
         stop_early = EarlyStopping(monitor='val_loss', patience=6) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
         # Separate features and labels
@@ -172,17 +185,15 @@ if __name__ == "__main__":
     # Hyper-parameter Optimization Testing
     tm = TensorModel()
     # First model testing
-    tm.build_model()
-    tm.train_model(epochs=50)
-    tm.test_model()
-    # Save model
-    tm.save_model()
-    '''
+    #tm.build_model()
+    #tm.train_model(epochs=100)
+    #tm.test_model()
     # Hyper-parameter tuning
-    _ = input()
     tm.tune_hyper()
     # Test out new hyperparameters
     tm.build_model()
     tm.train_model(epochs=100)
     tm.test_model()
-    '''
+    # Save model
+    _ = input("If you do not wish to save the model, escape by ctrl + c.\n")
+    tm.save_model()
