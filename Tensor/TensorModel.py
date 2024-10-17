@@ -46,8 +46,8 @@ class TensorModel:
         'layer_3': 64,
         'layer_4': 16,
         'l2': 0.01,
-        'dropout_1': 0.2,
-        'dropout_2': 0.2
+        'dropout_1': 0.1,
+        'dropout_2': 0.1
     }
 
     # Where best models are saved
@@ -81,7 +81,7 @@ class TensorModel:
         # Convolutional Block Two
         m.add(Conv2D(filters=self.conv_hps['f2'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
         m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
-        # Flatten Before Inference
+        # Reformat before inference
         m.add(Flatten())
         # Inference Block
         m.add(Dense(units=self.hps['layer_1'],activation=self.hps['activation']))
@@ -122,7 +122,7 @@ class TensorModel:
         # Convolutional Block Two
         m.add(Conv2D(filters=self.conv_hps['f2'],kernel_size=self.conv_hps['kernel'],dilation_rate=self.conv_hps['dilation'],padding=self.conv_hps['padding'],activation='relu'))
         m.add(MaxPool2D(pool_size=self.conv_hps['pool']))
-        # Flatten Before Inference
+        # Reformat before inference
         m.add(Flatten())
         # Inference Block
         # Fine-tuning
@@ -132,8 +132,8 @@ class TensorModel:
         hp_units_3 = hp.Int('layer_3', min_value = 16, max_value = 128, step = 16)
         hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 128, step = 16)
         hp_reg_rate = hp.Choice('l2', values=[0.0,0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
-        hp_dropout_1 = hp.Choice('dropout_1', values=[i * 0.02 for i in range(0,26)]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
-        hp_dropout_2 = hp.Choice('dropout_2', values=[i * 0.02 for i in range(0,26)])
+        hp_dropout_1 = hp.Choice('dropout_1', values=[i * 0.005 for i in range(0,51)]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
+        hp_dropout_2 = hp.Choice('dropout_2', values=[i * 0.005 for i in range(0,51)])
         m.add(Dense(units=hp_units_1,activation=hp_activation))
         m.add(Dropout(hp_dropout_1))
         m.add(Dense(units=hp_units_2,activation=hp_activation))
@@ -146,19 +146,17 @@ class TensorModel:
         return m
 
     def tune_hyper(self):
-        # Delete previous runs since model changes
-        if (os.path.exists("./Tensor/tensor_runs")):
-            os.remove("./Tensor/tensor_runs")
+        # MAKE SURE TO DELETE tensor_runs FOLDER WHEN YOU CHANGE THE MODEL ARCHITECTURE ... 
         # Create hp optimizer band
         tuner = kt.Hyperband(
                             self.__hyper_model,
                             objective=['val_accuracy'],
-                            max_epochs=15,
+                            max_epochs=100,
                             factor=3,
-                            directory='./',
-                            project_name='./tensor_runs'
+                            directory='./Tensor/',
+                            project_name='tensor_runs'
                         )
-        stop_early = EarlyStopping(monitor='val_loss', patience=6) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
+        stop_early = EarlyStopping(monitor='val_loss', patience=10) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
         # Separate features and labels
         train_X, train_y = self.dataset.train_features_labels()
         # Normalize features and labels between 1 and 0
@@ -184,15 +182,12 @@ class TensorModel:
 if __name__ == "__main__":
     # Hyper-parameter Optimization Testing
     tm = TensorModel()
-    # First model testing
-    #tm.build_model()
-    #tm.train_model(epochs=100)
-    #tm.test_model()
     # Hyper-parameter tuning
     tm.tune_hyper()
     # Test out new hyperparameters
     tm.build_model()
     tm.train_model(epochs=100)
+    # Test Model
     tm.test_model()
     # Save model
     _ = input("If you do not wish to save the model, escape by ctrl + c.\n")
