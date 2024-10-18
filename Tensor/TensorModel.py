@@ -52,7 +52,7 @@ class TensorModel:
 
     # Where best models are saved
     path = os.getcwd() + "/Tensor/best_models"
-
+    final_path = os.getcwd() + "/Tensor"
     # MARK: Initializer
 
     def __init__(self) -> None:
@@ -93,13 +93,20 @@ class TensorModel:
         m.add(Dense(units=1,activation='sigmoid',kernel_regularizer=L2(self.hps['l2'])))
         self.model = m
     
-    def train_model(self,augment: bool = False, epochs: int = 50):
+    def train_model(self, augment: bool = False, epochs: int = 50):
         if self.model == None or type(self.model) != Sequential:
             return
         
         self.model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
         history = self.model.fit(self.dataset.get_train(augment=augment),validation_data=self.dataset.get_cv(),batch_size=self.dataset.batch_size,epochs=epochs,verbose=1)
-        print(type(history))
+        #print(type(history))
+        return history
+    
+    def final_train(self, epochs = 100):
+        if self.model == None or type(self.model) != Sequential:
+            return
+        
+        history = self.model.fit(self.dataset.get_all(),batch_size=self.dataset.batch_size,epochs=epochs,verbose=1)
         return history
 
     def test_model(self):
@@ -113,7 +120,7 @@ class TensorModel:
         if self.model == None:
             return
         
-        results = self.model.evaluate(___, verbose=1)
+        results = self.model.evaluate(self.dataset.get_random(1), verbose=0)
         return results
     
     # MARK: Hyper Model
@@ -175,7 +182,11 @@ class TensorModel:
 
     # MARK: Save Model
 
-    def save_model(self):
+    def save_model(self, final: bool = False):
+        if final:
+            self.model.save(self.final_path + "/best_nn.keras")
+            return
+        
         n_files = len(os.listdir(self.path))
         self.model.save(self.path + f"/neural_net_{n_files}.keras")
     

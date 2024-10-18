@@ -66,4 +66,14 @@ class DataProcessor:
     def get_cv(self) -> tf.data.Dataset: return self.cv
     
     def get_test(self) -> tf.data.Dataset: return self.test
+
+    def get_random(self, batches: int) -> tf.data.Dataset:
+        if batches <= 0:
+            return []
+        if batches > len(self.dataset):
+            return self.dataset
+        sz_buffer = self.batch_size*len(self.dataset)
+        shuffled = self.dataset.shuffle(buffer_size=sz_buffer,seed=None)
+        sampled = shuffled.take(2)
+        return self.dataset.take(batches)
         
