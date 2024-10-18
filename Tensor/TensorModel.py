@@ -173,9 +173,6 @@ class TensorModel:
         stop_early = EarlyStopping(monitor='val_loss', patience=10) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
         # Separate features and labels
         train_X, train_y = self.dataset.train_features_labels()
-        # Normalize features and labels between 1 and 0
-        #train_X = train_X.astype('float32') / 255.0
-        #train_y = train_y.astype('float32') / 255.0
         tuner.search(train_X, train_y, epochs=50, validation_split=0.2, callbacks=[stop_early])
         best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
         self.hps = best_hps.values
@@ -190,23 +187,23 @@ class TensorModel:
         n_files = len(os.listdir(self.path))
         self.model.save(self.path + f"/neural_net_{n_files}.keras")
     
-    def load_model(self, n: int):
-        n_files = len(os.listdir(self.path))
-        if (n < 0 or n >= n_files):
+    def load_model(self,name:str):
+        if name not in os.listdir(self.path):
+            print("file not in the directory")
             return
-        self.model = load_model(f"neural_net_{n}.keras")
+        self.model = load_model(self.path + f"/{name}")
 
 
 if __name__ == "__main__":
     # Hyper-parameter Optimization Testing
     tm = TensorModel()
     # Hyper-parameter tuning
-    tm.tune_hyper()
+    #tm.tune_hyper()
     # Test out new hyperparameters
     tm.build_model()
-    tm.train_model(epochs=100)
+    tm.train_model()
     # Test Model
-    tm.test_model()
+    _ = tm.test_model()
     # Save model
     _ = input("If you do not wish to save the model, escape by ctrl + c.\n")
     tm.save_model()

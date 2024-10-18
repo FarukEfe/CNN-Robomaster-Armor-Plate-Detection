@@ -75,5 +75,5 @@ class DataProcessor:
         sz_buffer = self.batch_size*len(self.dataset)
         shuffled = self.dataset.shuffle(buffer_size=sz_buffer,seed=None)
         sampled = shuffled.take(2)
-        return self.dataset.take(batches)
+        return sampled.take(batches)
         
