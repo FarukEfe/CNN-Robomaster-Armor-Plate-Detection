@@ -108,6 +108,13 @@ class TensorModel:
         
         results = self.model.evaluate(self.dataset.get_test(),verbose=1)
         return results
+
+    def test_random_batch(self):
+        if self.model == None:
+            return
+        
+        results = self.model.evaluate(___, verbose=1)
+        return results
     
     # MARK: Hyper Model
 
