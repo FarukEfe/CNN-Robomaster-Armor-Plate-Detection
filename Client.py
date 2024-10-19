@@ -5,6 +5,8 @@ from Tensor.TensorModel import TensorModel
 class Client:
 
     def __init__(self):
+        # Environment setup for required files
+        env_setup()
         # If training data doesn't exist, exit with code 0
         if (not os.path.exists("./data/train")):
             print("Make sure you've added your train folder inside (project-root-dir)/data")
@@ -20,7 +22,7 @@ class Client:
 
     def get_architecture(self):
         # Display model architecture
-        pass
+        self.tensor.model.get_build_config() # I don't know the method needed, this is for testing
 
     def evaluate(self):
         # Evaluate the model on the images in test folder

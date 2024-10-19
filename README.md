@@ -15,6 +15,8 @@ After, type the following command in the command line tool: `python3 -m venv .en
 
 However, first we need to activate the project environment, for which we'll run `.env/Scripts/activate` in the command line, from the project root directory.
 
+###### BEFORE PROCEEDING, KNOW THAT THE ONLY FILE YOU'RE SUPPOSED TO USE IN TESTING THE MODEL IS CLIENT.PY (THIS IS VERY IMPORTANT)
+
 ### Create Required Files
 
 ### Add Training Data

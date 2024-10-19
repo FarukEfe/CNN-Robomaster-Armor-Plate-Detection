@@ -28,7 +28,7 @@ def split_train_test(test_split: int = 0.2):
 
 def order_dataset(train: bool = True):
     fdir = "train" if train else "test"    
-    if (os.path.exists(f".data/{fdir}/pos") or not os.path.exists(f"./data/{fdir}")):
+    if (os.path.exists(f"./data/{fdir}/pos") or not os.path.exists(f"./data/{fdir}")):
         return
     # Create directories
     moves: list[tuple[str]] = []
@@ -63,11 +63,12 @@ def order_dataset(train: bool = True):
 
 # Create necessary folders to set up workspace (create essential folders ignored by .gitignore)
 def env_setup():
-    # Create virtual environment and set up libraries: tensorflow, numpy, 
     # Create data file
-    os.mkdir(os.getcwd() + "/data")
+    if not os.path.exists("./data"):
+        os.mkdir("./data")
     # Create best_models in Tensor
-    os.mkdir(os.getcwd() + "/Tensor/best_models")
+    if not os.path.exists("./Tensor/best_models"):
+        os.mkdir("./Tensor/best_models")
 
 order_dataset()
 order_dataset(train=False)
