@@ -1,37 +1,36 @@
 import os
 import shutil
-from math import floor
 
-def order_dataset():    
-    if (os.path.exists("./train/pos")):
+def order_dataset(train: bool = True):
+    fdir = "train" if train else "test"    
+    if (os.path.exists(f".data/{fdir}/pos")):
         return
     # Create directories
     moves: list[tuple[str]] = []
     removes = []
     # Create new folders labelled Pos and Neg
-    os.mkdir("./data/train/pos")
-    os.mkdir("./data/train/neg")
+    os.mkdir(f"./data/{fdir}/pos")
+    os.mkdir(f"./data/{fdir}/neg")
     # Add files based on label
-    for _, _, filenames in os.walk(os.getcwd() + "./data/train/"):
+    for _, _, filenames in os.walk(os.getcwd() + f"./data/{fdir}/"):
         # Iterate through each image in list with its subsequent txt
         for i in range(0,len(filenames) - 1,2):
             img_name = filenames[i]
             txt_name = filenames[i+1] # Get label in txt
-            loc_txt_dir = f"./data/train/{txt_name}"
+            loc_txt_dir = f"./data/{fdir}/{txt_name}"
             file = open(loc_txt_dir,'r')
             label = int(file.read(1))
             file.close()
             # Move image to folder pos or neg or 1 depending on label
             if label == 1:
-                moves.append((f"./data/train/{img_name}", "./data/train/pos/"))
+                moves.append((f"./data/{fdir}/{img_name}", f"./data/{fdir}/pos/"))
             else:
-                moves.append((f"./data/train/{img_name}", "./data/train/neg/"))
+                moves.append((f"./data/{fdir}/{img_name}", f"./data/{fdir}/neg/"))
             removes.append(loc_txt_dir)
             # Delete text file
     # Classify all image files
     for mv in moves:
-        key = mv[0]
-        dest = mv[1]
+        key, dest = mv[0], mv[1]
         shutil.move(key,dest)
     # Remove all .txt files
     for rm in removes:
@@ -44,4 +43,3 @@ def env_setup():
     os.mkdir(os.getcwd() + "/data")
     # Create best_models in Tensor
     os.mkdir(os.getcwd() + "/Tensor/best_models")
-    pass
