@@ -1,9 +1,34 @@
 import os
 import shutil
+from math import floor
+
+def split_train_test(test_split: int = 0.2):
+    # Return cases
+    if test_split >= 1:
+        print("Test-split cannot be all of dataset")
+        return
+    if (os.path.exists(f"./data/test/pos")): return
+    # Make test dir
+    os.mkdir("./data/test")
+    # Make moves list
+    moves = []
+    for _, _, filenames in os.walk(os.getcwd() + f"./data/train/"):
+        # Make test start index
+        test_idx = floor(len(filenames) - len(filenames) * 0.2)
+        # Split based on index (making sure that labels stay with their images)
+        for i in range(0,len(filenames) - 1, 2):
+            img_name = filenames[i]
+            txt_name = filenames[i+1]
+            if i >= test_idx:
+                moves.append((f"./data/train/{img_name}", "./data/test"))
+                moves.append((f"./data/train/{txt_name}", "./data/test"))
+    for mv in moves:
+        key, dest = mv[0], mv[1]
+        shutil.move(key, dest)
 
 def order_dataset(train: bool = True):
     fdir = "train" if train else "test"    
-    if (os.path.exists(f".data/{fdir}/pos")):
+    if (os.path.exists(f".data/{fdir}/pos") or not os.path.exists(f"./data/{fdir}")):
         return
     # Create directories
     moves: list[tuple[str]] = []
@@ -43,3 +68,6 @@ def env_setup():
     os.mkdir(os.getcwd() + "/data")
     # Create best_models in Tensor
     os.mkdir(os.getcwd() + "/Tensor/best_models")
+
+order_dataset()
+order_dataset(train=False)

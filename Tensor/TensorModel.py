@@ -101,13 +101,6 @@ class TensorModel:
         history = self.model.fit(self.dataset.get_train(augment=augment),validation_data=self.dataset.get_cv(),batch_size=self.dataset.batch_size,epochs=epochs,verbose=1)
         #print(type(history))
         return history
-    
-    def final_train(self, epochs = 100):
-        if self.model == None or type(self.model) != Sequential:
-            return
-        
-        history = self.model.fit(self.dataset.get_all(),batch_size=self.dataset.batch_size,epochs=epochs,verbose=1)
-        return history
 
     def test_model(self):
         if self.model == None:

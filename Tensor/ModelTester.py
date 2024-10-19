@@ -36,7 +36,7 @@ class ModelTester:
         best_acc, best_loss, best_key = -1, -1, None
         for key in keys:
             acc, loss = self.__test_model(key,rep)
-            #print(f"{key} has accuracy {acc} and loss {loss}")
+            print(f"{key} has accuracy {acc} and loss {loss}")
             best_key = key if acc > best_acc else best_key
             best_loss = loss if acc > best_acc else best_loss
             # Ensure best_acc updates last since the above values depend on acc > best_acc comparisons
@@ -77,4 +77,6 @@ if __name__ == "__main__":
     tester = ModelTester()
     tester.show_models()
     dec_list = tester.consensus(10, 10)
+    model: TensorModel = dec_list[0]['model']
+    model.test_model()
     #tester.save_best(bm)
