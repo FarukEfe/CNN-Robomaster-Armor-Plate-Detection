@@ -8,9 +8,5 @@ Model/__pycache__/
 # Ignore Tensor saves
 Tensor/best_models/
 Tensor/tensor_runs/
-# Ignore yolo saves
-runs/
-yolov8s.pt
-dataset_yaml.yaml
 # Do NOT ignore README.md
 !README.md
