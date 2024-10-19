@@ -1,7 +1,5 @@
-# Data Analysis & Preprocessing
+# Preprocessing
 import numpy as np
-import pandas as pd
-import random
 from keras.api.preprocessing import image_dataset_from_directory
 # Neural Network Training
 from keras.api.models import Sequential

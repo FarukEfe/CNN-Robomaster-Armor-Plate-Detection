@@ -37,4 +37,11 @@ def order_dataset():
     for rm in removes:
         os.remove(rm)
 
-order_dataset()
+# Create necessary folders to set up workspace (create essential folders ignored by .gitignore)
+def env_setup():
+    # Create virtual environment and set up libraries: tensorflow, numpy, 
+    # Create data file
+    os.mkdir(os.getcwd() + "/data")
+    # Create best_models in Tensor
+    os.mkdir(os.getcwd() + "/Tensor/best_models")
+    pass
