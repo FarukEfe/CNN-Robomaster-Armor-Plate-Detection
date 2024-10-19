@@ -36,7 +36,7 @@ class ModelTester:
         best_acc, best_loss, best_key = -1, -1, None
         for key in keys:
             acc, loss = self.__test_model(key,rep)
-            print(f"{key} has accuracy {acc} and loss {loss}")
+            #print(f"{key} has accuracy {acc} and loss {loss}")
             best_key = key if acc > best_acc else best_key
             best_loss = loss if acc > best_acc else best_loss
             # Ensure best_acc updates last since the above values depend on acc > best_acc comparisons
@@ -70,7 +70,7 @@ class ModelTester:
         print(best_stats)
         _ = input("If you want to abandon, ctrl + c.\n")
         # Save best model
-        best_pick.final_train(epochs=125)
+        # Argue if you need a final train for the best model
         best_pick.save_model(final=True)
 
 if __name__ == "__main__":
@@ -79,4 +79,6 @@ if __name__ == "__main__":
     dec_list = tester.consensus(10, 10)
     model: TensorModel = dec_list[0]['model']
     model.test_model()
+    #model.train_model(epochs=80)
+    #model.test_model()
     #tester.save_best(bm)

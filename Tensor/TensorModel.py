@@ -45,9 +45,9 @@ class TensorModel:
         'layer_2': 128,
         'layer_3': 64,
         'layer_4': 16,
-        'l2': 0.01,
-        'dropout_1': 0.1,
-        'dropout_2': 0.1
+        'l2': 0.05,
+        'dropout_1': 0.2,
+        'dropout_2': 0.2
     }
 
     # Where best models are saved
@@ -139,8 +139,8 @@ class TensorModel:
         hp_units_3 = hp.Int('layer_3', min_value = 16, max_value = 128, step = 16)
         hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 128, step = 16)
         hp_reg_rate = hp.Choice('l2', values=[0.0,0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
-        hp_dropout_1 = hp.Choice('dropout_1', values=[i * 0.005 for i in range(0,51)]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
-        hp_dropout_2 = hp.Choice('dropout_2', values=[i * 0.005 for i in range(0,51)])
+        hp_dropout_1 = hp.Choice('dropout_1', values=[i * 0.01 for i in range(0,26)]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
+        hp_dropout_2 = hp.Choice('dropout_2', values=[i * 0.01 for i in range(0,26)])
         m.add(Dense(units=hp_units_1,activation=hp_activation))
         m.add(Dropout(hp_dropout_1))
         m.add(Dense(units=hp_units_2,activation=hp_activation))
@@ -158,15 +158,15 @@ class TensorModel:
         tuner = kt.Hyperband(
                             self.__hyper_model,
                             objective=['val_accuracy'],
-                            max_epochs=100,
+                            max_epochs=75,
                             factor=3,
                             directory='./Tensor/',
                             project_name='tensor_runs'
                         )
-        stop_early = EarlyStopping(monitor='val_loss', patience=10) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
+        stop_early = EarlyStopping(monitor='val_loss', patience=5) # Observe improvement in val_loss and if it doesn't change for over 6 epochs, stop training
         # Separate features and labels
         train_X, train_y = self.dataset.train_features_labels()
-        tuner.search(train_X, train_y, epochs=50, validation_split=0.2, callbacks=[stop_early])
+        tuner.search(train_X, train_y, epochs=25, validation_split=0.2, callbacks=[stop_early])
         best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
         self.hps = best_hps.values
 
@@ -191,12 +191,12 @@ if __name__ == "__main__":
     # Hyper-parameter Optimization Testing
     tm = TensorModel()
     # Hyper-parameter tuning
-    #tm.tune_hyper()
+    tm.tune_hyper()
     # Test out new hyperparameters
     tm.build_model()
     tm.train_model()
     # Test Model
     _ = tm.test_model()
     # Save model
-    _ = input("If you do not wish to save the model, escape by ctrl + c.\n")
+    _ = input("\nIf you do not wish to save the model, escape by ctrl + c.\n")
     tm.save_model()
