@@ -21,7 +21,23 @@ However, first we need to activate the project environment, for which we'll run 
 
 ### Add Training Data
 
+After the previous step, make sure to add your training & testing folders (named 'train' and 'test') inside the 'data' folder.
+
+Even if you're only planning to test the model, it is required to include the 'train' folder as the program cannot initialize `DataProcessor` (and subsequently `TensorModel`, `ModelTester`, `Client`) classes. **AVOID GETTING THIS ERROR**.
+
+You can find the training folder I've used in this link
+
 ### Add Final Model
+
+The `.keras` file exceeds the file size allowance by GitHub. So do the following to access my final model.
+
+To find the `.keras` file of the final model I've made, you can navigate to the following google drive link, download, and add it to the `final_model` folder found in the project repository. Here's the link to google drive:
+
+**HERE COMES THE LINK**
+
+### Run & Test
+
+Now, you're ready to run `Client.py` to test the performance of the model with your own testing set. So go ahead and run `Client.py`.
 
 ### For Contact
 You can reach out to me on my McMaster email: yencilef@mcmaster.ca
