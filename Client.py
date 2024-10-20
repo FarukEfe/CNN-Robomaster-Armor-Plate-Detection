@@ -21,9 +21,9 @@ class Client:
 
     def get_architecture(self):
         # Display model architecture
-        self.tensor.model.get_build_config() # I don't know the method needed, this is for testing
+        self.tensor.model.summary()
 
     def evaluate(self):
         # Evaluate the model on the images in test folder
         result = self.tensor.test_model()
-        print(result)
+        return result

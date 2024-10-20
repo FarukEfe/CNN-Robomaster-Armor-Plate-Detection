@@ -19,4 +19,5 @@ if __name__ == "__main__":
     )
     # Run Client
     client = Client()
-    client.tensor.test_model()
+    client.get_architecture()
+    _ = client.evaluate()
