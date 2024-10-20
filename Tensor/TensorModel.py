@@ -127,7 +127,7 @@ class TensorModel:
         m.add(Flatten())
         # Inference Block
         # Fine-tuning
-        hp_activation = hp.Choice('activation', values=['relu','tanh']) # Activation tuning
+        hp_activation = hp.Choice('activation', values=['relu']) # Activation tuning
         hp_units_1 = hp.Int('layer_1', min_value = 128, max_value = 256, step = 16) # Tuning for each layer units
         hp_units_2 = hp.Int('layer_2', min_value = 128, max_value = 256, step = 16)
         hp_units_3 = hp.Int('layer_3', min_value = 64, max_value = 128, step = 16)
