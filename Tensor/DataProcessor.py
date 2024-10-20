@@ -1,4 +1,7 @@
-from tensor_imports import *
+try:
+    from Tensor.tensor_imports import *
+except:
+    from tensor_imports import *
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -23,7 +26,8 @@ class DataProcessor:
             image_size=[self.img_w,self.img_h], # This will change later
             interpolation='nearest', # Method used when resizing the images
             batch_size=self.batch_size, # Training batch for images (should match the batch_size in model.fit)
-            shuffle=True # Shuffle data
+            shuffle=True, # Shuffle data
+            verbose=False
         )
 
         # Turn images into float matrices
@@ -38,7 +42,8 @@ class DataProcessor:
             image_size=[self.img_w,self.img_h], # This will change later
             interpolation='nearest', # Method used when resizing the images
             batch_size=self.batch_size, # Training batch for images (should match the batch_size in model.fit)
-            shuffle=True # Shuffle data
+            shuffle=True, # Shuffle data
+            verbose=False
         )
         # Assign dataset to attributes
         self.train, self.cv, self.test = train, cv, test

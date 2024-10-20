@@ -7,7 +7,7 @@ def split_train_test(test_split: int = 0.2):
     if test_split >= 1:
         print("Test-split cannot be all of dataset")
         return
-    if (os.path.exists(f"./data/test/pos")): return
+    if (os.path.exists(f"./data/test")): return
     # Make test dir
     os.mkdir("./data/test")
     # Make moves list
@@ -60,15 +60,3 @@ def order_dataset(train: bool = True):
     # Remove all .txt files
     for rm in removes:
         os.remove(rm)
-
-# Create necessary folders to set up workspace (create essential folders ignored by .gitignore)
-def env_setup():
-    # Create data file
-    if not os.path.exists("./data"):
-        os.mkdir("./data")
-    # Create best_models in Tensor
-    if not os.path.exists("./Tensor/best_models"):
-        os.mkdir("./Tensor/best_models")
-
-order_dataset()
-order_dataset(train=False)

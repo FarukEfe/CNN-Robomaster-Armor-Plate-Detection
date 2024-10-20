@@ -2,6 +2,7 @@
 .env/
 # Ignore data folder
 data/
+final_model/
 # Ignore caches
 __pycache__/
 Model/__pycache__/

@@ -17,13 +17,17 @@ However, first we need to activate the project environment, for which we'll run 
 
 ###### BEFORE PROCEEDING, KNOW THAT THE ONLY FILE YOU'RE SUPPOSED TO USE IN TESTING THE MODEL IS CLIENT.PY (THIS IS VERY IMPORTANT)
 
-### Create Required Files
+### Run __init__.py
+
+Run this file and follow the instructions to load the data. The instructions will be as follows
 
 ### Add Training Data
 
-After the previous step, make sure to add your training & testing folders (named 'train' and 'test') inside the 'data' folder.
+Once you're running \__init\__.py, the command prompt will ask you to move over your 'train' and 'test' folders before hitting `Enter`. So:
 
-Even if you're only planning to test the model, it is required to include the 'train' folder as the program cannot initialize `DataProcessor` (and subsequently `TensorModel`, `ModelTester`, `Client`) classes. **AVOID GETTING THIS ERROR**.
+Make sure to add your training & testing folders (named 'train' and 'test') inside the 'data' folder.
+
+Even if you're only planning to test the model, it is required to include the 'train' folder as the program cannot initialize `DataProcessor` (and subsequently `TensorModel`, `ModelTester`, `Client`) classes. So it'll exit. **AVOID GETTING THIS ERROR**
 
 You can find the training folder I've used in this link
 

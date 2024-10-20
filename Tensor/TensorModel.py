@@ -1,18 +1,13 @@
-from tensor_imports import *
-from DataProcessor import DataProcessor
+try:
+    from Tensor.tensor_imports import *
+    from Tensor.DataProcessor import DataProcessor
+except:
+    from tensor_imports import *
+    from DataProcessor import DataProcessor
 
 '''
 Training parameters:
- 1. Learning Rate (Handled by Adam optimizer)
- 2. Batch Size (Generally 32 is fine, but give this a try)
- 3. Number of epochs (First catch a glimpse at the performance using low epochs, then for the final train, do more epochs to ensure the model's training)
  4. Optimizer (try some other than adam, such as SGD or RMSprop)
-
-Inference hyper-parameteres to optimize:
- 1. Layers
- 2. Units
- 3. Activation
- 4. Regularizer
 
 Convolutional hyper-parameters to optimize:
  1. Number of filters
@@ -24,9 +19,6 @@ Convolutional hyper-parameters to optimize:
 '''
 
 class TensorModel:
-
-    # Dataset Accesss
-    dataset: DataProcessor = DataProcessor()
 
     # Convolutional Block Hyper-Parameters
     conv_hps = {
@@ -51,11 +43,13 @@ class TensorModel:
     }
 
     # Where best models are saved
-    path = os.getcwd() + "/Tensor/best_models"
-    final_path = os.getcwd() + "/Tensor"
+    path = "./Tensor/best_models"
+    final_path = "./final_model"
     # MARK: Initializer
 
     def __init__(self) -> None:
+        # Dataset Accesss
+        self.dataset: DataProcessor = DataProcessor()
         # Set logger for debug
         tf.get_logger().setLevel("INFO")
         tf.autograph.set_verbosity(0)
@@ -177,10 +171,12 @@ class TensorModel:
             self.model.save(self.final_path + "/best_nn.keras")
             return
         
+        if (not os.path.exists(self.path)): os.mkdir(self.path)
         n_files = len(os.listdir(self.path))
         self.model.save(self.path + f"/neural_net_{n_files}.keras")
     
-    def load_model(self,name:str):
+    def load_model(self,name:str = "", final_model: bool = False):
+        if final_model: self.model = load_model(self.final_path + "/best_nn.keras")
         if name not in os.listdir(self.path):
             print("file not in the directory")
             return
@@ -191,7 +187,7 @@ if __name__ == "__main__":
     # Hyper-parameter Optimization Testing
     tm = TensorModel()
     # Hyper-parameter tuning
-    tm.tune_hyper()
+    #tm.tune_hyper()
     # Test out new hyperparameters
     tm.build_model()
     tm.train_model()

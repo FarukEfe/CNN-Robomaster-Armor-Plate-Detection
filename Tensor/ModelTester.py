@@ -1,10 +1,15 @@
-from tensor_imports import *
-from TensorModel import *
-# IN THIS FILE, WE TEST ALL OF THE MODELS SAVED IN "best_models" FOLDER (IGNORED ON GITHUB) and RETURN THE BEST MODEL / TRAIN IT ON THE WHOLE DS
+try:
+    from Tensor.tensor_imports import *
+    from Tensor.TensorModel import *
+except:
+    from tensor_imports import *
+    from TensorModel import *
 
 class ModelTester:
 
     models = {}
+
+    # MARK: Initializer
 
     def __init__(self):
         n = os.listdir("Tensor/best_models")
@@ -12,10 +17,8 @@ class ModelTester:
             tensor = TensorModel()
             tensor.load_model(i)
             self.models[i] = tensor
-    
-    def show_models(self):
-        keys = self.models.keys()
-        print(keys)
+
+    # MARK: Methods
 
     # Get the AVG of test results
     def __test_model(self, model_save: str, rep: int) -> float:
@@ -50,35 +53,32 @@ class ModelTester:
         }
         return best_model
     
-    def consensus(self, test_rep: int, repeat_rep: int):
-        bms = []
+    def consensus(self, test_rep: int, repeat_rep: int) -> TensorModel:
+        counts = {}
         for _ in range(repeat_rep):
             bm = self.cherry_pick(test_rep)
+            try:
+                counts[bm['key']] += 1
+            except:
+                counts[bm['key']] = 0
             print(bm)
-            bms.append(bm)
-        return bms
+        max_key = max(counts, key=counts.get)
+        return self.models[max_key]
     
+    # MARK: Save Final
+
     def save_best(self, best_model):
         # If no model is selected, return without saving
-        if best_model['model'] == None:
+        if best_model == None:
             print("No model selected, aborting from operation ...")
             return
-        # Get best model and its stats
-        best_pick: TensorModel = best_model['model']
-        best_stats: dict = { 'acc': best_model['acc'], 'loss': best_model['loss'] }
-        # Display best model stats
-        print(best_stats)
+        # For safety
         _ = input("If you want to abandon, ctrl + c.\n")
         # Save best model
-        # Argue if you need a final train for the best model
-        best_pick.save_model(final=True)
+        best_model.save_model(final=True)
 
 if __name__ == "__main__":
     tester = ModelTester()
-    tester.show_models()
-    dec_list = tester.consensus(10, 10)
-    model: TensorModel = dec_list[0]['model']
-    model.test_model()
-    #model.train_model(epochs=80)
-    #model.test_model()
-    #tester.save_best(bm)
+    best_model: TensorModel = tester.consensus(10, 10)
+    best_model.test_model()
+    tester.save_best(best_model=best_model)
