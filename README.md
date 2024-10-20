@@ -43,11 +43,6 @@ To find the `.keras` file of the final model I've made, you can navigate to the 
 
 Now, you're ready to run `Client.py` to test the performance of the model with your own testing set. So go ahead and run `Client.py`.
 
-### For Contact
-You can reach out to me on my McMaster email: yencilef@mcmaster.ca
-
-Or my personal email: efefrk30@gmail.com
-
 ABOUT THE MODEL
 ===============
 
@@ -79,3 +74,9 @@ Layers:
 - Dropout Layer: 
 - 4th Hidden Layer: 
 - Output Layer: Sigmoid activation is used for binary classification. Only 1 neuron is needed (dimensions would mismatch otherwise).
+
+FOR CONTACT
+===========
+You can reach out to me on my McMaster email: yencilef@mcmaster.ca
+
+Or my personal email: efefrk30@gmail.com
