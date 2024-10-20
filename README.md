@@ -45,4 +45,37 @@ Now, you're ready to run `Client.py` to test the performance of the model with y
 
 ### For Contact
 You can reach out to me on my McMaster email: yencilef@mcmaster.ca
+
 Or my personal email: efefrk30@gmail.com
+
+ABOUT THE MODEL
+===============
+
+The model holds two convolutional blocks and an inference block.
+
+### 1st Convolutional Block
+
+Layers:
+
+- `Conv2D`: 6 filters and 3x3 kernel. 6 filters is within reasonable range for the 1st block and 3x3 kernel helps us focus more on the localized features instead of the whole image. **ReLU** activation is used to highlight / maximize features.
+- `MaxPool2D`: 2x2 pool size (default). This layer helps us simplify the features in a pool of pixels, from which we can extract more features
+
+### 2nd Convolutional Block
+
+Layers:
+
+- `Conv2D`: 12 filters and 3x3 kernel. From a pooled matrix it's easier to gather more features and computationally less demanding. 3x3 kernel and **ReLU** activation are kept here for the same reasons.
+- `MaxPool2D`: default pool size. Serves the same purpose as previous pooling layer. 
+
+### Inference Block
+
+Inference in a neural network usually starts with high neuron numbers to infer outcome from very localized information. Dropout is applied to avoid overfitting on certain examples (a random subset of training examples are dropped in each iteration). The number of neurons in the hidden layers reduce towards the output layer, assembling the localized information into more global outcomes. As a result, the output layer assembles the final few pieces to draw a conclusion.
+
+Layers:
+- 1st Hidden Layer:
+- Dropout Layer:
+- 2nd Hidden Layer: 
+- 3rd Hidden Layer:
+- Dropout Layer: 
+- 4th Hidden Layer: 
+- Output Layer: Sigmoid activation is used for binary classification. Only 1 neuron is needed (dimensions would mismatch otherwise).
