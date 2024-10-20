@@ -127,11 +127,11 @@ class TensorModel:
         m.add(Flatten())
         # Inference Block
         # Fine-tuning
-        hp_activation = hp.Choice('activation', values=['relu']) # Activation tuning
-        hp_units_1 = hp.Int('layer_1', min_value = 16, max_value = 256, step = 16) # Tuning for each layer units
-        hp_units_2 = hp.Int('layer_2', min_value = 16, max_value = 256, step = 16)
-        hp_units_3 = hp.Int('layer_3', min_value = 16, max_value = 128, step = 16)
-        hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 128, step = 16)
+        hp_activation = hp.Choice('activation', values=['relu','tanh']) # Activation tuning
+        hp_units_1 = hp.Int('layer_1', min_value = 128, max_value = 256, step = 16) # Tuning for each layer units
+        hp_units_2 = hp.Int('layer_2', min_value = 128, max_value = 256, step = 16)
+        hp_units_3 = hp.Int('layer_3', min_value = 64, max_value = 128, step = 16)
+        hp_units_4 = hp.Int('layer_4', min_value = 16, max_value = 64, step = 16)
         hp_reg_rate = hp.Choice('l2', values=[0.0,0.0001,0.0005,0.001,0.005,0.01,0.05,0.1])
         hp_dropout_1 = hp.Choice('dropout_1', values=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5]) # A good dropout rate is usually < 0.5 (steps of 0.02) 
         hp_dropout_2 = hp.Choice('dropout_2', values=[0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5])

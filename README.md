@@ -74,14 +74,33 @@ Layers:
 
 Inference in a neural network usually starts with high neuron numbers to infer outcome from very localized information. Dropout is applied to avoid overfitting on certain examples (a random subset of training examples are dropped in each iteration). The number of neurons in the hidden layers reduce towards the output layer, assembling the localized information into more global outcomes. As a result, the output layer assembles the final few pieces to draw a conclusion.
 
+###### The Default Structure
+
+I've used ReLU activation for all hidden layers as a rule of thumb (most reliable with in-between inferences). 
+
+The default structure has 256 units in the 1st and 2nd hidden layers, 64 for the 3rd and 16 for the 4th hidden layer.
+
+For regularization, I've used 0.05 as a good start; doesn't allow the model to overfit yet you maintain high training accuracy.
+
+For the dropout layers, I've used 0.2 dropout rate for both. Usually the ideal dropout rate lies between 0.2 and 0.5. So 0.2 choice allowed me to see its effects without causing massive chunks of data to drop.
+
+However, to improve the performance of a model, it is essential to properly pick hyper-parameters. There's different algorithm to achieve this such as **Random Search, Grid Search, Bayesian Optimization, etc.**
+
+I've used `keras_tuner` library to define the optimizing hyper-parameters, and find the ideal value for each within the search range I've specified. Below is how and why I set those ranges.
+
+**THE OUTPUT LAYER IS NOT OPTIMIZED SINCE WE HAVE NO OTHER CHOICE BUT TO HAVE A SINGLE NEURON FOR BINARY CLASSIFICATION**.
+
+###### Hyper-parameter Optimization
+
 Layers:
-- 1st Hidden Layer: ReLU activation, 
-- Dropout Layer:
-- 2nd Hidden Layer: 
-- 3rd Hidden Layer:
-- Dropout Layer: 
-- 4th Hidden Layer: 
+- 1st Hidden Layer: Optimized within a range of 128 to 256 neurons to allow the model to make very localized inferences.
+- Dropout Layer: Searched between 0 (in case we don't need one at that layer) and 5 (any greater value would increase computation time with very little chance of a good pick)
+- 2nd Hidden Layer: Optimized within the same range as the 1st layer
+- 3rd Hidden Layer: Optimized between 64 and 128 to slowly start assembling bigger inferences.
+- Dropout Layer: Optimized within the same range as the 1st dropout layer for the same reasons.
+- 4th Hidden Layer: Optimized between 16 and 64 units to gather more global inferences easier for the output layer to assemble.
 - Output Layer: Sigmoid activation is used for binary classification. Only 1 neuron is needed (dimensions would mismatch otherwise).
+- L2 Regularization Term: Searched between 0 and 0.1 since any value that's bigger will most likely underfit the model.
 
 FOR CONTACT
 ===========
