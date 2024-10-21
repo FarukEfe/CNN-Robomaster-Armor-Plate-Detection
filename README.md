@@ -93,7 +93,7 @@ I've used `keras_tuner` library to define the optimizing hyper-parameters, and f
 
 Layers:
 - 1st Hidden Layer: Optimized within a range of 128 to 256 neurons to allow the model to make very localized inferences.
-- Dropout Layer: Searched between 0 (in case we don't need one at that layer) and 5 (any greater value would increase computation time with very little chance of a good pick)
+- Dropout Layer: Searched between 0 (in case we don't need one at that layer) and 0.5 (any greater value would increase computation time with very little chance of a good pick)
 - 2nd Hidden Layer: Optimized within the same range as the 1st layer
 - 3rd Hidden Layer: Optimized between 64 and 128 to slowly start assembling bigger inferences.
 - Dropout Layer: Optimized within the same range as the 1st dropout layer for the same reasons.
