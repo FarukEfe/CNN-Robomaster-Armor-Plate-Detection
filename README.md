@@ -17,7 +17,7 @@ However, first we need to activate the project environment, for which we'll run 
 
 Now, you're going to install the following libraries using the format `pip<your-pip-version> install <module-name>`: use this downloading `tensorflow`, `numpy`, and `keras-tuner`.
 
-### Run __init__.py
+### Run \_\_init\_\_.py
 
 Run this file and follow the instructions to load the data. The instructions will be as follows:
 
