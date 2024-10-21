@@ -41,7 +41,7 @@ The `.keras` file exceeds the file size allowance by GitHub. So do the following
 
 To find the `.keras` file of my final model, navigate to the following google drive link, download, and add it to the 'final_model' folder found in the project repository. **Do not change its name!** If you can't see the 'final_model' folder, then you should probably run `__init__.py` first. 
 
-Here's the link to google drive: https://drive.google.com/file/d/1__ZPX6oFFVeeMn2nU4z3vAcrwWPt0Ydf/view?usp=drive_link
+Here's the link to google drive (model file is named `best_nn.keras`): https://drive.google.com/file/d/1__ZPX6oFFVeeMn2nU4z3vAcrwWPt0Ydf/view?usp=drive_link
 ### Run & Test
 
 Now, you're ready to hit `Enter`. The program will display the model accuracy on the test set you've provided in the command line.
